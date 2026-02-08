@@ -37,17 +37,17 @@ async def handle_plan_request(message: Message) -> None:
     """Обработка запроса на генерацию контент-плана."""
     if not message.text:
         return
-    
+
     user_input = message.text.strip()
-    
+
     if len(user_input) < 5:
         await message.answer(
             "⚠️ Слишком короткий запрос. Опиши свою нишу и целевую аудиторию подробнее.\n\n"
             "Пример: <code>ниша: кулинария, ЦА: молодые мамы</code>"
         )
         return
-    
+
     await message.answer("⏳ Генерирую контент-план...")
-    
+
     plan = generate_content_plan(user_input)
     await message.answer(plan)

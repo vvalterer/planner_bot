@@ -11,7 +11,7 @@ from app.database.connection import get_connection
 
 class UserRepository:
     """Репозиторий для работы с пользователями."""
-    
+
     @staticmethod
     async def get_or_create(
         telegram_id: int,
@@ -20,29 +20,29 @@ class UserRepository:
     ) -> Dict[str, Any]:
         """Получить или создать пользователя."""
         conn = await get_connection()
-        
+
         cursor = await conn.execute(
             "SELECT * FROM users WHERE telegram_id = ?",
             (telegram_id,)
         )
         row = await cursor.fetchone()
-        
+
         if row:
             return dict(row)
-        
+
         await conn.execute(
             "INSERT INTO users (telegram_id, username, first_name) VALUES (?, ?, ?)",
             (telegram_id, username, first_name)
         )
         await conn.commit()
-        
+
         cursor = await conn.execute(
             "SELECT * FROM users WHERE telegram_id = ?",
             (telegram_id,)
         )
         row = await cursor.fetchone()
         return dict(row)
-    
+
     @staticmethod
     async def get_by_telegram_id(telegram_id: int) -> Optional[Dict[str, Any]]:
         """Получить пользователя по Telegram ID."""
@@ -83,7 +83,7 @@ class UserRepository:
 
 class ContentPlanRepository:
     """Репозиторий для работы с контент-планами."""
-    
+
     @staticmethod
     async def create(
         user_id: int,
@@ -94,28 +94,28 @@ class ContentPlanRepository:
         """Создать новый контент-план."""
         conn = await get_connection()
         cursor = await conn.execute(
-            """INSERT INTO content_plans 
-               (user_id, niche, target_audience, plan_content) 
+            """INSERT INTO content_plans
+               (user_id, niche, target_audience, plan_content)
                VALUES (?, ?, ?, ?)""",
             (user_id, niche, target_audience, plan_content)
         )
         await conn.commit()
         return cursor.lastrowid
-    
+
     @staticmethod
     async def get_by_user(user_id: int, limit: int = 10) -> List[Dict[str, Any]]:
         """Получить контент-планы пользователя."""
         conn = await get_connection()
         cursor = await conn.execute(
-            """SELECT * FROM content_plans 
-               WHERE user_id = ? 
-               ORDER BY created_at DESC 
+            """SELECT * FROM content_plans
+               WHERE user_id = ?
+               ORDER BY created_at DESC
                LIMIT ?""",
             (user_id, limit)
         )
         rows = await cursor.fetchall()
         return [dict(row) for row in rows]
-    
+
     @staticmethod
     async def count_by_user(user_id: int) -> int:
         """Подсчитать количество планов пользователя."""

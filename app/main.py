@@ -16,7 +16,6 @@ from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 
 from app.config import settings
-from app.handlers import feature
 from app.database.connection import init_db, close_db
 
 
@@ -45,29 +44,29 @@ async def main() -> None:
     if not settings.bot_token:
         logger.error("BOT_TOKEN is not set!")
         sys.exit(1)
-    
+
     bot = Bot(
         token=settings.bot_token,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
     dp = Dispatcher()
-    
+
     # Регистрация startup/shutdown
     dp.startup.register(on_startup)
     dp.shutdown.register(on_shutdown)
-    
+
     from app.handlers import feature, admin, payment
     from app.middlewares.subscription import SubscriptionMiddleware
-    
+
     # Регистрация middleware
     dp.message.middleware(SubscriptionMiddleware())
     dp.callback_query.middleware(SubscriptionMiddleware())
-    
+
     # Подключение роутеров
     dp.include_router(admin.router)  # Admin router first
-    dp.include_router(payment.router) # Payment router second
+    dp.include_router(payment.router)  # Payment router second
     dp.include_router(feature.router)
-    
+
     logger.info("Starting bot polling...")
     await dp.start_polling(bot)
 

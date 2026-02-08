@@ -5,7 +5,6 @@ Pytest fixtures для тестирования бота.
 import pytest
 import asyncio
 import os
-import tempfile
 from unittest.mock import AsyncMock, MagicMock
 
 # Устанавливаем тестовые переменные окружения до импорта модулей
@@ -50,15 +49,15 @@ def mock_message_short():
 @pytest.fixture
 async def temp_db():
     """Временная база данных для тестов."""
-    from app.database.connection import init_db, close_db, _connection
-    
+    from app.database.connection import init_db, close_db
+
     # Используем in-memory базу
     original_path = os.environ.get("DB_PATH")
     os.environ["DB_PATH"] = ":memory:"
-    
+
     await init_db()
     yield
     await close_db()
-    
+
     if original_path:
         os.environ["DB_PATH"] = original_path

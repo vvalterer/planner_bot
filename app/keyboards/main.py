@@ -4,7 +4,7 @@ Reply и Inline клавиатуры для взаимодействия с по
 """
 
 from aiogram.types import (
-    ReplyKeyboardMarkup, 
+    ReplyKeyboardMarkup,
     KeyboardButton,
     InlineKeyboardMarkup,
     InlineKeyboardButton

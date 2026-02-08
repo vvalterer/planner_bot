@@ -17,7 +17,6 @@ _connection: Optional[aiosqlite.Connection] = None
 
 async def get_connection() -> aiosqlite.Connection:
     """Получить текущее подключение к БД."""
-    global _connection
     if _connection is None:
         raise RuntimeError("Database not initialized. Call init_db() first.")
     return _connection
@@ -26,16 +25,16 @@ async def get_connection() -> aiosqlite.Connection:
 async def init_db() -> None:
     """Инициализация базы данных."""
     global _connection
-    
+
     # Создаём директорию для БД если не существует
     db_dir = os.path.dirname(settings.db_path)
     if db_dir and not os.path.exists(db_dir):
         os.makedirs(db_dir, exist_ok=True)
         logger.info(f"Created database directory: {db_dir}")
-    
+
     _connection = await aiosqlite.connect(settings.db_path)
     _connection.row_factory = aiosqlite.Row
-    
+
     # Создание таблиц
     await _connection.executescript("""
         CREATE TABLE IF NOT EXISTS users (
@@ -46,7 +45,7 @@ async def init_db() -> None:
             subscription_end_date TIMESTAMP,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
-        
+
         CREATE TABLE IF NOT EXISTS content_plans (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
@@ -56,7 +55,7 @@ async def init_db() -> None:
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(telegram_id)
         );
-        
+
         CREATE INDEX IF NOT EXISTS idx_users_telegram_id ON users(telegram_id);
         CREATE INDEX IF NOT EXISTS idx_plans_user_id ON content_plans(user_id);
     """)

@@ -30,15 +30,15 @@ def mock_user_message():
 
 class TestAdminHandlers:
     """Тесты обработчиков админ-панели."""
-    
+
     @pytest.mark.asyncio
     async def test_admin_stats_access_granted(self, mock_admin_message, temp_db):
         """Тест доступа к статистике для админа."""
         # Настраиваем фикстуру
         settings.admin_ids = [123456789]
-        
+
         await cmd_admin_stats(mock_admin_message)
-        
+
         # Проверяем, что ответ был отправлен
         mock_admin_message.answer.assert_called_once()
         args = mock_admin_message.answer.call_args[0][0]
@@ -48,9 +48,9 @@ class TestAdminHandlers:
     async def test_admin_stats_access_denied(self, mock_user_message):
         """Тест отказа в доступе к статистике."""
         settings.admin_ids = [123456789]
-        
+
         await cmd_admin_stats(mock_user_message)
-        
+
         # Проверяем, что ответ НЕ был отправлен
         mock_user_message.answer.assert_not_called()
 
@@ -59,14 +59,14 @@ class TestAdminHandlers:
         """Тест успешной рассылки."""
         settings.admin_ids = [123456789]
         mock_admin_message.text = "/broadcast Тестовое сообщение"
-        
+
         # Добавляем пользователей в БД для рассылки
         from app.database.repository import UserRepository
         await UserRepository.get_or_create(111, "user1")
         await UserRepository.get_or_create(222, "user2")
-        
+
         await cmd_broadcast(mock_admin_message)
-        
+
         # Проверяем отправку
         assert mock_admin_message.bot.send_message.call_count == 2
         mock_admin_message.answer.assert_called()  # Отчет админу
@@ -76,9 +76,9 @@ class TestAdminHandlers:
         """Тест рассылки без текста."""
         settings.admin_ids = [123456789]
         mock_admin_message.text = "/broadcast"
-        
+
         await cmd_broadcast(mock_admin_message)
-        
+
         # Проверяем сообщение об ошибке
         mock_admin_message.answer.assert_called_with("⚠️ Использование: <code>/broadcast Текст сообщения</code>")
         mock_admin_message.bot.send_message.assert_not_called()
