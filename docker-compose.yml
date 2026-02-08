@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  bot:
+    build: .
+    container_name: planner_bot
+    restart: always
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+    environment:
+      - DB_PATH=/app/data/database.sqlite3
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
